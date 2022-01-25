@@ -34,7 +34,7 @@ class ScrapeData(ScrapeURL):
         CarData['tahun'] = CarTitle[0]
         CarData['lokasi'] = self.soup.select_one("div.location-desc").getText().replace("Carsome ","")
         CarData['harga'] = self.soup.find("span", class_="price").getText().strip().split()[-1].replace(".", "")
-        CarData['img'] = self.soup.find("div", class_='car-swiper-slide').img.get('src')
+        CarData['gambar'] = self.soup.find("div", class_='car-swiper-slide').img.get('src')
         CarData['url'] = self.url
         keySpec = [key.getText().replace(" ","_").lower() for key in self.soup.find_all("span", class_ = "key")]
         valueSpec = [value.getText() for value in  self.soup.find_all("span", class_ = "value")]
@@ -64,7 +64,7 @@ class CleaningData():
     def DateFormat(self, data):
         if data is not None:
             CleanData = self.month[data.split()[0]] + " " + data.split()[1]
-            return datetime.strptime(CleanData, "%b %Y").strftime("%m-%Y")
+            return datetime.strptime(CleanData, "%b %Y").strftime("%d-%m-%Y")
         return data
 
     def Clean(self, data):
