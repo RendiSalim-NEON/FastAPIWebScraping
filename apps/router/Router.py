@@ -27,8 +27,8 @@ update_data = json.dumps({
     "masa_berlaku_stnk": "01-09-2022"
 }, indent = 2)
 
-@router.get("/scrape_url_car/{page}")
-async def scraping_url(response: Response, page:int = None):
+@router.get("/scrape_url_car/")
+async def scraping_url(response: Response, page:Optional[int] = None):
     result = Control.get_url(page = page)
     response.status_code = result.status
     return result
@@ -50,12 +50,12 @@ async def save_detail(response: Response, data = Body(...)):
     result = Control.save_data(data = data)
     return result
 
-@router.put('/update_data/{idcar}')
-async def update_data(response: Response, idcar:str, update_data = Body(..., example=update_data)):
+@router.put('/update_data/')
+async def update_data(response: Response, idcar:Optional[str], update_data = Body(..., example=update_data)):
     result = Control.update_data(idcar = idcar, update_data = update_data)
     return result
 
-@router.delete('/delete_data/{idcar}')
-async def delete_data(response: Response, idcar:str):
+@router.delete('/delete_data/')
+async def delete_data(response: Response, idcar:Optional[str]):
     result = Control.delete_data(idcar = idcar)
     return result

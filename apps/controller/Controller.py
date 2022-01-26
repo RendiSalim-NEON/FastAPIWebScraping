@@ -1,15 +1,12 @@
-from lib2to3.pytree import Base
-from fastapi import exceptions
 from orator.exceptions.query import QueryException
 from apps.helper import Log
 from apps.models import schema
 from apps.schemas.Response import BaseResponse
+from apps.schemas.SchemaCar import RequestData
 from ScrapingClass import ScrapeURL, ScrapeData, CleaningData
 from apps.models.Models import Carsome
 
 URL = "https://www.carsome.id/beli-mobil-bekas"
-CONNECTION = ScrapeURL(URL)
-CONNECTION_DB = "postgresql://postgres:admin12345678@localhost:5432/postgres"
 
 
 class Controller(object):
@@ -17,23 +14,30 @@ class Controller(object):
     def get_url(cls, page = None):
         result = BaseResponse()
         result.status = 404
-        url = URL + "?pageNo=" + str(page)
+        url = f'{URL}?pageNo={str(page)}'
         request_url = ScrapeURL(url)
         
         try:
-            if len(request_url.GetLinkDetail()) == 0:
-                result.message = "There is no car data in this page"
+            if len(request_url.GetLinkDetail()) == 0 and page is not None:
+                e = "There is no car data in this page"
+                Log.error(e)
+                result.message = str(e)
+                
+            elif page is None:
+                e = "Declare page that you want scrape"
+                Log.error(e)
+                result.message = str(e)
+
             else:
                 result.status = 200
                 result.message = "Success get URL data"
                 result.data =  request_url.GetLinkDetail()
-            
-            Log.info(result.message)
-        except:
-            m = "Error"
-            Log.error(m)
+                Log.info(result.message)
+
+        except Exception as e:
+            Log.error(e)
             result.status = 400
-            result.message = str(m)
+            result.message = str(e)
 
         return result
 
@@ -50,16 +54,18 @@ class Controller(object):
                 result.message = "Success scrape all car data"
                 data = request_car_url.ScrapeDetail()
                 result.data = CleaningData().Clean(data)
+                
 
             else:
-                result.message = "There are no URL"
+                e = "There are no URL"
+                Log.error(e)
+                result.message = str(e)
 
-            Log.info(result.message)
         except:
             m = "Invalid URL"
             Log.error(m)
             result.message = str(m)
-
+           
         return result
 
 
@@ -96,12 +102,16 @@ class Controller(object):
                 result.status = 200
                 result.data = data
                 result.message = f"Success Save data from {data['url']}"
+                Log.info(result.message)    
+
             elif data['url'] in Carsome.lists("url"):
                 result.message = f"Data from {data['url']} already in database"
-            else:
-                result.message = f"There are no input data"
+                Log.info(result.message)
 
-            Log.info(result.message)
+            else:
+                e = "There are no input data"
+                Log.error(e)
+                result.message = str(e)
 
         except QueryException:
             m = "column Id, brand, model, and harga is null"
@@ -109,11 +119,16 @@ class Controller(object):
             Log.error(m)
             result.message = str(m)
         
-        except:
-            m = "Error"
+        except TypeError:
+            m = "Input must be in dictionary or json"
             result.status = 400
             Log.error(m)
             result.message = str(m)
+
+        except Exception as e:
+            Log.error(e)
+            result.status = 400
+            result.message = str(e)
 
         return result
 
@@ -124,33 +139,49 @@ class Controller(object):
         result = BaseResponse()
         result.status = 400
 
-        if (brand is not None and tahun is not None) and (brand in Carsome.lists("brand") and tahun in Carsome.lists("tahun")):
-            data = Carsome.where("brand",brand).where("tahun",tahun).get().serialize()
-            result.status = 200
-            result.message = f"Success get car data, brand:{brand.title()} and tahun: {tahun}"
-            result.data = data
+        try:
+            if (brand is not None and tahun is not None) and (brand in Carsome.lists("brand") and tahun in Carsome.lists("tahun")):
+                data = Carsome.where("brand",brand).where("tahun",tahun).get().serialize()
+                result.status = 200
+                result.message = f"Success get car data, brand:{brand.title()} and tahun: {tahun}"
+                result.data = data
 
-        elif brand is None and tahun is None:
-            data = Carsome.get().serialize()
-            result.status = 200
-            result.message = f"Success get all car data, brand:{brand} and tahun: {tahun}"
-            result.data = data
+            elif brand is None and tahun is None:
+                data = Carsome.get().serialize()
+                result.status = 200
+                result.message = f"Success get all car data, brand:{brand} and tahun: {tahun}"
+                result.data = data
 
-        elif brand is not None and brand in Carsome.lists("brand"):
-            data = Carsome.where("brand", brand.title()).get().serialize()
-            result.status = 200
-            result.message = f"Success get all car data, brand:{brand}"
-            result.data = data
-            
-        elif tahun is not None and tahun in Carsome.lists("tahun"):
-            data = Carsome.where("tahun", tahun).get().serialize()
-            result.status = 200
-            result.message = f"Success get all car data, brand:{brand}"
-            result.data = data
+            elif brand is not None and brand in Carsome.lists("brand"):
+                data = Carsome.where("brand", brand.title()).get().serialize()
+                result.status = 200
+                result.message = f"Success get all car data, brand:{brand}"
+                result.data = data
+                
+            elif tahun is not None and tahun in Carsome.lists("tahun"):
+                data = Carsome.where("tahun", tahun).get().serialize()
+                result.status = 200
+                result.message = f"Success get all car data, tahun:{tahun}"
+                result.data = data
 
-        else:
-            result.status = 404
-            result.message = f"Data Not Found"
+            else:
+                e = "Data Not Found"
+                result.status = 404
+                Log.error(e)
+                result.message = str(e)
+                
+
+        except TypeError:
+            m = "Your input should be in string"
+            result.status = 400
+            Log.error(m)
+            result.message = str(m)
+
+        except Exception as e:
+            e = "Error"
+            Log.error(e)
+            result.status = 400
+            result.message = str(e)
 
         return result
 
@@ -165,17 +196,25 @@ class Controller(object):
                 Carsome.where('id', idcar).update(update_data)
                 result.status = 200
                 result.message = f"Update data by idcar: {idcar}"
-            else:
-                result.status = 404
-                result.message = "id car not found"
-            
-            Log.info(result.message)
+                Log.info(result.message)
 
-        except:
-            m = "Error"
-            Log.error(m)
+
+            elif idcar is None:
+                e = "Declare id car that you want update"
+                Log.error(e)
+                result.message = str(e)
+
+
+            else:
+                e = "id car not found"
+                result.status = 404
+                Log.error(e)
+                result.message = str(e)
+
+        except Exception as e:
+            Log.error(e)
             result.status = 400
-            result.message = str(m)
+            result.message = str(e)
 
         return result
 
@@ -189,16 +228,19 @@ class Controller(object):
                 Carsome.where('id', idcar).delete()
                 result.status = 200
                 result.message = f"Success Delete data by car id: {idcar}"
-            else:
-                result.status = 404
-                result.message = "car id not found"
-            Log.info(result.message)
+                Log.info(result.message)
 
-        except:
-            m = "Error"
-            Log.error(m)
+            else:
+                e = "car id not found"
+                result.status = 404
+                Log.error(e)
+                result.message = str(e)
+
+
+        except Exception as e:
+            Log.error(e)
             result.status = 400
-            result.message = str(m)
+            result.message = str(e)
 
         return result
 

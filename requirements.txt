@@ -1,11 +1,11 @@
 bs4
 requests
-pandas
 
 fastapi
 uvicorn
 typing
 pydantic
 psycopg2
+orator
 
-sqlalchemy
+json
