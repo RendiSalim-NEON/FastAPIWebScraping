@@ -1,4 +1,4 @@
-import enum
+from unittest import result
 from pydantic import BaseModel
 from datetime import date
 from typing import Optional, List
@@ -16,14 +16,14 @@ class RequestData(BaseModel):
     jenis_bahan_bakar: str = None
     warna: str = None
     jumlah_tempat_duduk: str = None 
-    tanggal_registrasi: str = None 
+    tanggal_registrasi: date = None 
     tipe_registrasi: str = None 
     jarak_tempuh_saat_ini: int = None
-    kunci_cadangan: bool = None
-    buku_servis: bool = None
+    kunci_cadangan: str = None
+    buku_servis: str = None
     kadaluwarsa_garansi_pabrik: str = None
-    garansi_pabrik: bool = None
-    masa_berlaku_stnk: str = None
+    garansi_pabrik: str = None
+    masa_berlaku_stnk: date = None
 
 class ResponseData(BaseModel):
-    data: List[RequestData]
+    result: List[RequestData]

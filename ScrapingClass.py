@@ -11,7 +11,7 @@ HEADERS = {
 
 class ScrapeURL(): #connection
     def __init__(self, link):
-        self.link = requests.get(link, headers=HEADERS, verify=False).text
+        self.link = requests.get(link, headers=HEADERS).text
         self.soup = BeautifulSoup(self.link, 'lxml')
 
     def GetLinkDetail(self):
@@ -54,7 +54,7 @@ class CleaningData():
             "Mei": "May",
             "Jun": "Jun",
             "Jul": "Jul",
-            "Agt": "Agt",
+            "Agt": "Aug",
             "Sep": "Sep",
             "Okt": "Oct",
             "Nov": "Nov",
@@ -72,6 +72,9 @@ class CleaningData():
         data['jarak_tempuh_saat_ini'] = data['jarak_tempuh_saat_ini'].replace(".", "").split()[0]
         data['tanggal_registrasi'] = self.DateFormat(data['tanggal_registrasi'])
         data['masa_berlaku_stnk'] = self.DateFormat(data['masa_berlaku_stnk'])
+        if 'kadaluwarsa_garansi_pabrik' in data.keys():
+            data['kadaluwarsa_garansi_pabrik'] = self.DateFormat(data['kadaluwarsa_garansi_pabrik'])
+
         return data
 
 
