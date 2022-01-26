@@ -1,11 +1,12 @@
-from fastapi import Response
-from orator.exceptions.query import QueryException
 from apps.helper import Log
 from apps.models import schema
 from apps.schemas.Response import BaseResponse
 from apps.schemas.SchemaCar import ResponseData
 from ScrapingClass import ScrapeURL, ScrapeData, CleaningData
 from apps.models.Models import Carsome
+from main import PARAMS
+
+SALT = PARAMS.SALT.salt
 
 URL = "https://www.carsome.id/beli-mobil-bekas"
 
@@ -87,7 +88,7 @@ class Controller(object):
                 table.long_text("url").nullable()
                 table.char("jenis_bahan_bakar", 10).nullable()
                 table.string("warna").nullable()
-                table.string("jumlah_tempat_duduk").nullable()
+                table.integer("jumlah_tempat_duduk").nullable()
                 table.date("tanggal_registrasi").nullable()
                 table.string("tipe_registrasi").nullable()
                 table.string("jarak_tempuh_saat_ini").nullable()
