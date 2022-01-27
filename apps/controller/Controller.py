@@ -76,8 +76,8 @@ class Controller(object):
         result = BaseResponse()
         result.status = 400
         
-        if not schema.has_table("CarsomeScraping"):
-            with schema.create("CarsomeScraping") as table:
+        if not schema.has_table("CarsomeScraping1"):
+            with schema.create("CarsomeScraping1") as table:
                 table.string("id")
                 table.string("brand")
                 table.string("model")
@@ -91,7 +91,7 @@ class Controller(object):
                 table.integer("jumlah_tempat_duduk").nullable()
                 table.date("tanggal_registrasi").nullable()
                 table.string("tipe_registrasi").nullable()
-                table.string("jarak_tempuh_saat_ini").nullable()
+                table.integer("jarak_tempuh_saat_ini").nullable()
                 table.enum("kunci_cadangan", ["Ya", "Tidak"]).nullable()
                 table.enum("buku_servis", ["Ya", "Tidak"]).nullable()
                 table.string("kadaluwarsa_garansi_pabrik").nullable()

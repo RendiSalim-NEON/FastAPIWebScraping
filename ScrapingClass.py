@@ -37,7 +37,7 @@ class ScrapeURL():
         """
 
         self.link = requests.get(link, headers=HEADERS).text
-        self.soup = BeautifulSoup(self.link, 'lxml')
+        self.soup = BeautifulSoup(self.link, 'html5lib')
 
     def GetLinkDetail(self):
         """
